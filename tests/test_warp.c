@@ -4,7 +4,8 @@
  * Drives it like MPC does (song position every block, jitter, loop wraps, tempo changes) and checks: no clicks (the
  * largest step between samples stays near what the input itself has), no NaN, the playhead follows the song position,
  * the moves do what they say (half speed halves the pitch, silence is silent, backwards plays the past backwards),
- * WARP OFF is a clean pass-through, and the saved state round-trips. */
+ * WARP OFF is a clean pass-through, and the saved state round-trips. Also the EDIT page (steps, DICE, RESET), the CHAIN
+ * page, an old (1.0.x) state, and that rolled and edited patterns play without clicks. */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +13,7 @@
 #include "engine.h"
 
 const char *warp_pattern(int n);
+const char *warp_pad(void *inst, int n);
 double warp_beat(void *inst);
 
 static int fails;
@@ -199,13 +201,13 @@ int main(void) {
         void *s = e->create(NULL);
         set(e, s, "pattern", "11"); set(e, s, "length", "2"); set(e, s, "warp", "0"); set(e, s, "fade", "1");
         set(e, s, "mix", "63"); set(e, s, "output", "-4.5");
-        char st[512]; e->get_param(s, "state", st, sizeof st);
+        char st[4096]; e->get_param(s, "state", st, sizeof st);
         void *t = e->create(NULL);
         e->set_param(t, "state", st);
-        char st2[512]; e->get_param(t, "state", st2, sizeof st2);
+        char st2[4096]; e->get_param(t, "state", st2, sizeof st2);
         CHECK(!strcmp(st, st2), "state round-trip: '%s' vs '%s'", st, st2);
         e->set_param(t, "reserved", "1");   /* MPC flicks parameter 0: nothing may change */
-        char st3[512]; e->get_param(t, "state", st3, sizeof st3);
+        char st3[4096]; e->get_param(t, "state", st3, sizeof st3);
         CHECK(!strcmp(st, st3), "parameter 0 changed the state");
         e->get_param(t, "pattern:7", buf, sizeof buf);
         CHECK(!strcmp(buf, "SPINBACK"), "pattern name 7: %s", buf);
@@ -229,6 +231,94 @@ int main(void) {
         CHECK(worst < input_step * 2.2f + 0.012f, "no position: click %.4f", worst);
         CHECK(peak > 0.3f, "no position: no sound");
         e->destroy(s);
+    }
+
+    /* 8. EDIT: a step changes the pad's pattern; the strips show it; RESET puts it back; it is saved */
+    {
+        void *s = e->create(NULL);
+        set(e, s, "pattern", "0");   /* Half Time: hhhh... */
+        set(e, s, "edit_step", "3"); set(e, s, "move", "1");   /* step 4 silent */
+        CHECK(warp_pad(s, 0)[3] == '-', "edit: step 4 is '%c'", warp_pad(s, 0)[3]);
+        CHECK(!strcmp(warp_pattern(0), "hhhhhhhhhhhhhhhh"), "edit changed the factory pattern");
+        e->get_param(s, "st4", buf, sizeof buf); CHECK(!strcmp(buf, "1"), "st4: %s", buf);
+        e->get_param(s, "move", buf, sizeof buf); CHECK(!strcmp(buf, "1"), "move: %s", buf);
+        e->get_param(s, "pat_name", buf, sizeof buf); CHECK(strstr(buf, "EDITED") != NULL, "pat_name: %s", buf);
+        set(e, s, "edit_step", "0"); e->get_param(s, "move", buf, sizeof buf); CHECK(!strcmp(buf, "2"), "move of step 1: %s", buf);
+        char st[4096]; e->get_param(s, "state", st, sizeof st);
+        void *t = e->create(NULL); e->set_param(t, "state", st);
+        CHECK(!strcmp(warp_pad(t, 0), warp_pad(s, 0)), "edited pattern not restored: %s", warp_pad(t, 0));
+        set(e, s, "reset", "1");
+        CHECK(!strcmp(warp_pad(s, 0), warp_pattern(0)), "reset: %s", warp_pad(s, 0));
+        e->get_param(s, "pat_name", buf, sizeof buf); CHECK(!strcmp(buf, "HALF TIME"), "pat_name after reset: %s", buf);
+        /* an old (1.0.x) state has no patterns or chain: the pads' own patterns, chain off */
+        e->set_param(t, "state", "pattern=5;length=1;warp=1;fade=0;mix=100;output=0;");
+        CHECK(!strcmp(warp_pad(t, 0), warp_pattern(0)), "old state kept an edited pattern");
+        e->get_param(t, "chain", buf, sizeof buf); CHECK(!strcmp(buf, "0"), "old state: chain %s", buf);
+        e->get_param(t, "pattern", buf, sizeof buf); CHECK(!strcmp(buf, "5"), "old state: pattern %s", buf);
+        e->destroy(s); e->destroy(t);
+    }
+
+    /* 9. DICE: every wildness gives a valid pattern that isn't all straight, changes the pad, and plays without clicks */
+    for (int wild = 0; wild < 3; wild++) {
+        void *s = e->create(NULL);
+        char w[8]; snprintf(w, sizeof w, "%d", wild); set(e, s, "wild", w);
+        int straight_steps = 0;
+        for (int roll = 0; roll < 200; roll++) {
+            set(e, s, "pattern", "7");
+            char before[17]; snprintf(before, sizeof before, "%s", warp_pad(s, 7));
+            set(e, s, "dice", "1");
+            const char *p = warp_pad(s, 7);
+            CHECK(strlen(p) == 16 && strspn(p, ".-hqturbXxyz") == 16, "dice %d: bad pattern %s", wild, p);
+            CHECK(strpbrk(p, "-hqturbXxyz") != NULL, "dice %d: all straight", wild);
+            CHECK(strcmp(p, before), "dice %d: same pattern twice", wild);
+            for (int i = 0; i < 16; i++) straight_steps += p[i] == '.';
+        }
+        printf("dice %s: %.0f%% straight steps\n", wild == 0 ? "MILD" : wild == 1 ? "MEDIUM" : "WILD", straight_steps / 32.0);
+        if (wild == 0) CHECK(straight_steps > 200 * 16 / 2, "MILD should be mostly straight (%d)", straight_steps);
+        if (wild == 2) CHECK(straight_steps < 200 * 16 / 3, "WILD should be mostly moves (%d)", straight_steps);
+        /* play 40 rolls, one bar each, at a tempo change and loop wraps: no clicks, no NaN */
+        host_t h = {0, 120, 0, 220, 1, 8, 7u};
+        float worst = 0, peak = 0;
+        for (int roll = 0; roll < 40; roll++) {
+            set(e, s, "dice", "1");
+            for (int b = 0; b < 172; b++) { float st = block(e, s, &h, 128, &peak, 0.5f, NULL); if (b > 2 && st > worst) worst = st; }
+            if (roll == 20) h.bpm = 93;
+        }
+        CHECK(worst < input_step * 2.2f + 0.02f, "dice %d: click %.4f", wild, worst);
+        e->destroy(s);
+    }
+
+    /* 10. CHAIN: the slots play in turn, one LENGTH each, the pad follows, END ends it, and it is saved */
+    {
+        void *s = e->create(NULL);
+        set(e, s, "length", "1");    /* 1 bar = 4 beats */
+        set(e, s, "chain_pos", "0"); set(e, s, "chain_pick", "5");
+        set(e, s, "chain_pos", "1"); set(e, s, "chain_pick", "8");
+        set(e, s, "chain_pos", "2"); set(e, s, "chain_pick", "16");   /* END: a chain of 2 */
+        e->get_param(s, "c3", buf, sizeof buf); CHECK(!strcmp(buf, "END"), "c3: %s", buf);
+        e->get_param(s, "c4", buf, sizeof buf); CHECK(!strcmp(buf, ""), "c4: %s", buf);
+        e->get_param(s, "chain_pick", buf, sizeof buf); CHECK(!strcmp(buf, "16"), "chain_pick: %s", buf);
+        set(e, s, "chain", "1");
+        host_t h = {0, 120, 0, 220, 1, 0, 3u};
+        float peak = 0;
+        int seen[3] = {-1, -1, -1};
+        for (int bar = 0; bar < 3; bar++) {
+            for (int b = 0; b < 600; b++) block(e, s, &h, 128, &peak, 0.5f, NULL);   /* 600 x 128 frames ~ 1.74 s < 1 bar */
+            e->get_param(s, "pattern", buf, sizeof buf); seen[bar] = atoi(buf);
+            for (int b = 0; b < 89; b++) block(e, s, &h, 128, &peak, 0.5f, NULL);
+        }
+        CHECK(seen[0] == 5 && seen[1] == 8 && seen[2] == 5, "chain played %d %d %d", seen[0], seen[1], seen[2]);
+        char key[64]; int reported = 0;
+        while (mpc_engine_changed(s, key, sizeof key)) reported += !strcmp(key, "pattern");
+        CHECK(reported >= 1, "the pad change was not reported to MPC");
+        e->get_param(s, "chain_now", buf, sizeof buf); CHECK(strstr(buf, "OF 2") != NULL, "chain_now: %s", buf);
+        char st[4096]; e->get_param(s, "state", st, sizeof st);
+        void *t = e->create(NULL); e->set_param(t, "state", st);
+        char st2[4096]; e->get_param(t, "state", st2, sizeof st2);
+        CHECK(!strcmp(st, st2), "chain state round-trip: '%s' vs '%s'", st, st2);
+        set(e, s, "chain", "0");
+        e->get_param(s, "chain_now", buf, sizeof buf); CHECK(strstr(buf, "OFF") != NULL, "chain off: %s", buf);
+        e->destroy(s); e->destroy(t);
     }
 
     printf(fails ? "%d FAILED\n" : "ALL PASSED\n", fails);

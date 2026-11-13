@@ -4,7 +4,7 @@
 
 ![PotentialWarp's page on the MPC](docs/images/potentialwarp.png)
 
-*Insert effect · MPC OS 3.x · Gen1 and Gen2 · v1.0.1*
+*Insert effect · MPC OS 3.x · Gen1 and Gen2 · v1.1.0*
 
 Free and open source (MIT), made by **PotentialBreaks**. It runs inside the MPC like its own effects, with its own touchscreen page, Q-Link control and project recall, and no computer needed while you play.
 
@@ -25,19 +25,35 @@ It keeps the last few seconds of whatever you feed it and plays them back throug
 
 | Control | What it does |
 |---|---|
-| **PATTERNS** | 16 one-tap pads (also in the MPC's PRESET menu): Half Time, Tape Stop, Stop Start, Stutter, Roll Up, Beat Repeat, Reverse, Spinback, Gate 16ths, Gate 8ths, Chop, Half End, Slow Mo, Glitch, Wobble, Mangle |
+| **PATTERNS** | 16 one-tap pads (also in the MPC's PRESET menu): Half Time, Tape Stop, Stop Start, Stutter, Roll Up, Beat Repeat, Reverse, Spinback, Gate 16ths, Gate 8ths, Chop, Half End, Slow Mo, Glitch, Wobble, Mangle. Every pad can be edited or rolled anew (below) |
 | **LENGTH** | How long the 16 steps last: **1/2 BAR**, **1 BAR** or **2 BARS** |
 | **FADE** | **TIGHT** (short, punchy jumps) or **SOFT** (smoother) |
 | **WARP** | **ON** / **OFF**. Automate it to drop the effect in and out |
 | **MIX / OUTPUT** | Blend with the original sound, set the level |
 
-The strip at the top shows the pattern you picked, coloured by move, with a light under the step that's playing now.
+The strip at the top shows the pattern you picked, step by step and coloured by move, with a light under the step that's playing now.
+
+### EDIT page: make the pattern your own
+
+| Control | What it does |
+|---|---|
+| **Steps 1-16** | Tap a step... |
+| **WHAT THE STEP DOES** | ...then tap what it does: Straight, Silent, 1/2 or 1/4 Speed, Tape Stop, Tape Start, Backwards, Spinback, or Repeat 1/8, 1/16, 1/32, 1/64 (the repeat sizes are at LENGTH 1 BAR). Steps next to each other with the same move join into one longer move, so four Tape Stop steps make one long stop |
+| **ROLL** | Dice: rolls a brand-new pattern for the pad, on the beat. Tap again for another |
+| **MILD / MEDIUM / WILD** | How far ROLL goes: mostly straight with a few gentle moves, a mix, or almost all moves |
+| **RESET PAD** | Puts the pad's own pattern back |
+
+Edits and rolls change the pad you're on (its name shows "EDITED"), and every pad's pattern is saved with your project.
+
+### CHAIN page: patterns that change as you go
+
+Tap a slot (1-8), then the pattern for it, and turn **CHAIN** on. The slots play in turn, one pattern LENGTH each, and start again after the last one (or at the first **END**), so a chain like Half Time, Half Time, Stutter, Tape Stop changes over a phrase by itself. The pads follow the chain as it plays. Turn CHAIN off to stay on one pad.
 
 ## How to use it
 
 Add it as an **insert effect** on a track, program, pad or bus. It won't be in the instrument list. Press **Play**, then tap a pattern. Try **Half Time** or **Tape Stop** on a whole drum bus, **Stutter** or **Roll Up** on a break, **Reverse** on a vocal chop.
 
-For a live feel, map **WARP** or **PATTERN** to a Q-Link and record the moves as automation.
+For a live feel, map **WARP** or **PATTERN** to a Q-Link and record the moves as automation. Or press **ROLL** until something good comes up, then fix the steps you don't like on the EDIT page.
 
 ## Three looks
 
@@ -49,13 +65,12 @@ PotentialWarp comes in three looks: **Print Plate** (the default), **Night Rack*
 - **4/4 time.** One bar is four beats.
 - **It can only use what it has already heard.** Every move starts at the start of its run, so nothing reaches into the future: "backwards" plays the moment just before, in reverse.
 - **2 frames of delay** (0.05 ms), on the warped and the straight sound alike.
-- **Tested on the computer only so far** (see below).
 
 ## Will it work on my MPC?
 
 | | |
 |---|---|
-| **Tested on** | Nothing yet. It passes Akai's plugin checker and simulator, and my own tests |
+| **Tested on** | MPC One (MPC OS 3.10.1) |
 | **Should work on** | Any standalone MPC on **MPC OS 3.10.1 or later** (Akai's plugin folder), Gen1 (32-bit) and Gen2 (64-bit). Also Gen1 MPCs with the community plugin set-up on MPC OS 3.x |
 | **Not supported** | **MPC OS 2.x** |
 

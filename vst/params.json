@@ -1,115 +1,639 @@
 {
- "name": "PotentialWarp",
- "params": [
-  {
-   "key": "reserved",
-   "name": "(unused)",
-   "min": 0,
-   "max": 1,
-   "default": 0,
-   "legacy": true
-  },
-  {
-   "key": "pattern",
-   "name": "Pattern",
-   "options": [
-    "HALF TIME",
-    "TAPE STOP",
-    "STOP START",
-    "STUTTER",
-    "ROLL UP",
-    "BEAT REPEAT",
-    "REVERSE",
-    "SPINBACK",
-    "GATE 16THS",
-    "GATE 8THS",
-    "CHOP",
-    "HALF END",
-    "SLOW MO",
-    "GLITCH",
-    "WOBBLE",
-    "MANGLE"
-   ],
-   "default": "HALF TIME"
-  },
-  {
-   "key": "length",
-   "name": "Length",
-   "options": [
-    "1/2 BAR",
-    "1 BAR",
-    "2 BARS"
-   ],
-   "default": "1 BAR"
-  },
-  {
-   "key": "warp",
-   "name": "Warp",
-   "options": [
-    "OFF",
-    "ON"
-   ],
-   "default": "ON"
-  },
-  {
-   "key": "fade",
-   "name": "Fade",
-   "options": [
-    "TIGHT",
-    "SOFT"
-   ],
-   "default": "TIGHT"
-  },
-  {
-   "key": "mix",
-   "name": "Mix",
-   "min": 0,
-   "max": 100,
-   "default": 100,
-   "unit": "%"
-  },
-  {
-   "key": "output",
-   "name": "Output",
-   "min": -12,
-   "max": 6,
-   "default": 0,
-   "unit": "dB"
-  },
-  {
-   "key": "step",
-   "name": "Step",
-   "options": [
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
-    "12",
-    "13",
-    "14",
-    "15",
-    "16"
-   ],
-   "default": "0",
-   "live": true
-  },
-  {
-   "key": "theme",
-   "name": "Look",
-   "options": [
-    "Print Plate",
-    "Night Rack",
-    "Colour Block"
-   ],
-   "default": 0
-  }
- ]
+  "name": "PotentialWarp",
+  "params": [
+    {
+      "key": "reserved",
+      "name": "(unused)",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "legacy": true
+    },
+    {
+      "key": "pattern",
+      "name": "Pattern",
+      "options": [
+        "HALF TIME",
+        "TAPE STOP",
+        "STOP START",
+        "STUTTER",
+        "ROLL UP",
+        "BEAT REPEAT",
+        "REVERSE",
+        "SPINBACK",
+        "GATE 16THS",
+        "GATE 8THS",
+        "CHOP",
+        "HALF END",
+        "SLOW MO",
+        "GLITCH",
+        "WOBBLE",
+        "MANGLE"
+      ],
+      "default": "HALF TIME"
+    },
+    {
+      "key": "length",
+      "name": "Length",
+      "options": [
+        "1/2 BAR",
+        "1 BAR",
+        "2 BARS"
+      ],
+      "default": "1 BAR"
+    },
+    {
+      "key": "warp",
+      "name": "Warp",
+      "options": [
+        "OFF",
+        "ON"
+      ],
+      "default": "ON"
+    },
+    {
+      "key": "fade",
+      "name": "Fade",
+      "options": [
+        "TIGHT",
+        "SOFT"
+      ],
+      "default": "TIGHT"
+    },
+    {
+      "key": "mix",
+      "name": "Mix",
+      "min": 0,
+      "max": 100,
+      "default": 100,
+      "unit": "%"
+    },
+    {
+      "key": "output",
+      "name": "Output",
+      "min": -12,
+      "max": 6,
+      "default": 0,
+      "unit": "dB"
+    },
+    {
+      "key": "step",
+      "name": "Step",
+      "options": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+      ],
+      "default": "0",
+      "live": true
+    },
+    {
+      "key": "theme",
+      "name": "Look",
+      "options": [
+        "Print Plate",
+        "Night Rack",
+        "Colour Block"
+      ],
+      "default": 0
+    },
+    {
+      "key": "edit_step",
+      "name": "Edit Step",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+      ],
+      "default": "1"
+    },
+    {
+      "key": "move",
+      "name": "Step Move",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "dice",
+      "name": "Dice Pattern",
+      "type": "trigger",
+      "momentary": true
+    },
+    {
+      "key": "wild",
+      "name": "Dice Wildness",
+      "options": [
+        "MILD",
+        "MEDIUM",
+        "WILD"
+      ],
+      "default": "MEDIUM"
+    },
+    {
+      "key": "reset",
+      "name": "Reset Pattern",
+      "type": "trigger",
+      "momentary": true
+    },
+    {
+      "key": "chain",
+      "name": "Chain",
+      "options": [
+        "OFF",
+        "ON"
+      ],
+      "default": "OFF"
+    },
+    {
+      "key": "chain_pos",
+      "name": "Chain Slot",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "default": "1"
+    },
+    {
+      "key": "chain_pick",
+      "name": "Chain Pattern",
+      "options": [
+        "HALF TIME",
+        "TAPE STOP",
+        "STOP START",
+        "STUTTER",
+        "ROLL UP",
+        "BEAT REPEAT",
+        "REVERSE",
+        "SPINBACK",
+        "GATE 16THS",
+        "GATE 8THS",
+        "CHOP",
+        "HALF END",
+        "SLOW MO",
+        "GLITCH",
+        "WOBBLE",
+        "MANGLE",
+        "END"
+      ],
+      "default": "HALF TIME",
+      "live": true
+    },
+    {
+      "key": "st1",
+      "name": "Step 1",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st2",
+      "name": "Step 2",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st3",
+      "name": "Step 3",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st4",
+      "name": "Step 4",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st5",
+      "name": "Step 5",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st6",
+      "name": "Step 6",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st7",
+      "name": "Step 7",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st8",
+      "name": "Step 8",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st9",
+      "name": "Step 9",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st10",
+      "name": "Step 10",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st11",
+      "name": "Step 11",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st12",
+      "name": "Step 12",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st13",
+      "name": "Step 13",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st14",
+      "name": "Step 14",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st15",
+      "name": "Step 15",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "st16",
+      "name": "Step 16",
+      "options": [
+        "STRAIGHT",
+        "SILENT",
+        "1/2 SPEED",
+        "1/4 SPEED",
+        "TAPE STOP",
+        "TAPE START",
+        "BACKWARDS",
+        "SPINBACK",
+        "REPEAT 1/8",
+        "REPEAT 1/16",
+        "REPEAT 1/32",
+        "REPEAT 1/64"
+      ],
+      "default": "STRAIGHT",
+      "live": true
+    },
+    {
+      "key": "c1",
+      "name": "Chain 1",
+      "display": "string",
+      "default": 0,
+      "min": 0,
+      "max": 1,
+      "live": true
+    },
+    {
+      "key": "c2",
+      "name": "Chain 2",
+      "display": "string",
+      "default": 0,
+      "min": 0,
+      "max": 1,
+      "live": true
+    },
+    {
+      "key": "c3",
+      "name": "Chain 3",
+      "display": "string",
+      "default": 0,
+      "min": 0,
+      "max": 1,
+      "live": true
+    },
+    {
+      "key": "c4",
+      "name": "Chain 4",
+      "display": "string",
+      "default": 0,
+      "min": 0,
+      "max": 1,
+      "live": true
+    },
+    {
+      "key": "c5",
+      "name": "Chain 5",
+      "display": "string",
+      "default": 0,
+      "min": 0,
+      "max": 1,
+      "live": true
+    },
+    {
+      "key": "c6",
+      "name": "Chain 6",
+      "display": "string",
+      "default": 0,
+      "min": 0,
+      "max": 1,
+      "live": true
+    },
+    {
+      "key": "c7",
+      "name": "Chain 7",
+      "display": "string",
+      "default": 0,
+      "min": 0,
+      "max": 1,
+      "live": true
+    },
+    {
+      "key": "c8",
+      "name": "Chain 8",
+      "display": "string",
+      "default": 0,
+      "min": 0,
+      "max": 1,
+      "live": true
+    },
+    {
+      "key": "pat_name",
+      "name": "Pattern Name",
+      "display": "string",
+      "default": 0,
+      "min": 0,
+      "max": 1,
+      "live": true
+    },
+    {
+      "key": "chain_now",
+      "name": "Chain Now",
+      "display": "string",
+      "default": 0,
+      "min": 0,
+      "max": 1,
+      "live": true
+    }
+  ]
 }

@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="22" viewBox="0 0 960 22">
-<rect width="960" height="22" rx="4" fill="#0a0c0f"/>
-<rect x="40" y="4" width="22" height="14" rx="3" fill="#f2b34a"/>
-<text x="70" y="16" font-family="IBM Plex Sans Condensed, Arial, sans-serif" font-weight="600" font-size="14" letter-spacing="1" fill="#e6e9ee">SLOWER</text>
-<rect x="224" y="4" width="22" height="14" rx="3" fill="#e39b2d"/>
-<text x="254" y="16" font-family="IBM Plex Sans Condensed, Arial, sans-serif" font-weight="600" font-size="14" letter-spacing="1" fill="#e6e9ee">REPEATS</text>
-<rect x="408" y="4" width="22" height="14" rx="3" fill="#8fb4d8"/>
-<text x="438" y="16" font-family="IBM Plex Sans Condensed, Arial, sans-serif" font-weight="600" font-size="14" letter-spacing="1" fill="#e6e9ee">BACKWARDS</text>
-<rect x="592" y="9" width="22" height="4" rx="2" fill="#1d2127"/>
-<text x="622" y="16" font-family="IBM Plex Sans Condensed, Arial, sans-serif" font-weight="600" font-size="14" letter-spacing="1" fill="#e6e9ee">SILENT</text>
-<rect x="776" y="7" width="22" height="8" rx="3" fill="#e6e9ee"/>
-<text x="806" y="16" font-family="IBM Plex Sans Condensed, Arial, sans-serif" font-weight="600" font-size="14" letter-spacing="1" fill="#e6e9ee">PLAYING NOW</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="958" height="22" viewBox="0 0 958 22">
+<rect width="958" height="22" rx="4" fill="#0a0c0f"/>
+<rect x="30" y="4" width="22" height="14" rx="3" fill="#f2b34a"/>
+<text x="60" y="16" font-family="IBM Plex Sans Condensed, Arial, sans-serif" font-weight="600" font-size="14" letter-spacing="1" fill="#e6e9ee">SLOWER</text>
+<rect x="214" y="4" width="22" height="14" rx="3" fill="#e39b2d"/>
+<text x="244" y="16" font-family="IBM Plex Sans Condensed, Arial, sans-serif" font-weight="600" font-size="14" letter-spacing="1" fill="#e6e9ee">REPEATS</text>
+<rect x="398" y="4" width="22" height="14" rx="3" fill="#8fb4d8"/>
+<text x="428" y="16" font-family="IBM Plex Sans Condensed, Arial, sans-serif" font-weight="600" font-size="14" letter-spacing="1" fill="#e6e9ee">BACKWARDS</text>
+<rect x="582" y="9" width="22" height="4" rx="2" fill="#1d2127"/>
+<text x="612" y="16" font-family="IBM Plex Sans Condensed, Arial, sans-serif" font-weight="600" font-size="14" letter-spacing="1" fill="#e6e9ee">SILENT</text>
+<rect x="766" y="7" width="22" height="8" rx="3" fill="#e6e9ee"/>
+<text x="796" y="16" font-family="IBM Plex Sans Condensed, Arial, sans-serif" font-weight="600" font-size="14" letter-spacing="1" fill="#e6e9ee">PLAYING NOW</text>
 </svg>

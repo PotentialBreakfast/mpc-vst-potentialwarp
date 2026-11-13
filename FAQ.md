@@ -28,7 +28,10 @@ Some moves play what PotentialWarp heard just before. Right after you add it, it
 **It's too much.** Turn **MIX** down to blend in the original sound, or automate **WARP** so it only comes in for fills.
 
 **Can I make my own patterns?**
-Not yet. If you'd use a pattern editor, [let me know](../../issues/new?template=idea.yml).
+Yes, from 1.1.0. On the **EDIT** page, tap a step and then what it does, or press **ROLL** for a new pattern and tidy it up. Every pad's pattern is saved with your project, and **RESET PAD** brings the pad's own pattern back.
+
+**Can it change pattern by itself?**
+Yes: on the **CHAIN** page, pick up to 8 patterns in order and turn CHAIN on. Each plays for one LENGTH, then the next.
 
 ## Everything else
 
