@@ -1,0 +1,115 @@
+{
+ "name": "PotentialWarp",
+ "params": [
+  {
+   "key": "reserved",
+   "name": "(unused)",
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "legacy": true
+  },
+  {
+   "key": "pattern",
+   "name": "Pattern",
+   "options": [
+    "HALF TIME",
+    "TAPE STOP",
+    "STOP START",
+    "STUTTER",
+    "ROLL UP",
+    "BEAT REPEAT",
+    "REVERSE",
+    "SPINBACK",
+    "GATE 16THS",
+    "GATE 8THS",
+    "CHOP",
+    "HALF END",
+    "SLOW MO",
+    "GLITCH",
+    "WOBBLE",
+    "MANGLE"
+   ],
+   "default": "HALF TIME"
+  },
+  {
+   "key": "length",
+   "name": "Length",
+   "options": [
+    "1/2 BAR",
+    "1 BAR",
+    "2 BARS"
+   ],
+   "default": "1 BAR"
+  },
+  {
+   "key": "warp",
+   "name": "Warp",
+   "options": [
+    "OFF",
+    "ON"
+   ],
+   "default": "ON"
+  },
+  {
+   "key": "fade",
+   "name": "Fade",
+   "options": [
+    "TIGHT",
+    "SOFT"
+   ],
+   "default": "TIGHT"
+  },
+  {
+   "key": "mix",
+   "name": "Mix",
+   "min": 0,
+   "max": 100,
+   "default": 100,
+   "unit": "%"
+  },
+  {
+   "key": "output",
+   "name": "Output",
+   "min": -12,
+   "max": 6,
+   "default": 0,
+   "unit": "dB"
+  },
+  {
+   "key": "step",
+   "name": "Step",
+   "options": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16"
+   ],
+   "default": "0",
+   "live": true
+  },
+  {
+   "key": "theme",
+   "name": "Look",
+   "options": [
+    "Print Plate",
+    "Night Rack",
+    "Colour Block"
+   ],
+   "default": 0
+  }
+ ]
+}

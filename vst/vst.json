@@ -1,0 +1,34 @@
+{
+ "name": "PotentialWarp",
+ "vendor": "PotentialBreaks",
+ "uid": "PbWp",
+ "version": 1000,
+ "so": "potentialwarp.so",
+ "params": "params.json",
+ "layout": "layout.conf",
+ "defines": {
+  "HAS_DISPLAY_REV": 1,
+  "PARAM_TEXT_MAX": 96,
+  "DISPLAY_REV_NO_UPDATE": 1,
+  "HAS_SONG_POS": 1,
+  "MODULE_SUBDIR": "\".\""
+ },
+ "build": {
+  "root": "..",
+  "sources": [
+   "src/warp.c"
+  ],
+  "cflags": [
+   "-ffast-math"
+  ],
+  "libs": [
+   "-lm"
+  ]
+ },
+ "nrpn": false,
+ "art": "html",
+ "effect": true,
+ "programs": {
+  "param": "pattern"
+ }
+}

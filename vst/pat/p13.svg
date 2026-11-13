@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="56" viewBox="0 0 960 56">
+<rect width="960" height="56" rx="6" fill="#0a0c0f"/>
+<rect x="3.0" y="7" width="54.0" height="42" rx="4" fill="#1d2127"/>
+<rect x="63.0" y="7" width="54.0" height="42" rx="4" fill="#e39b2d"/>
+<rect x="123.0" y="7" width="54.0" height="42" rx="4" fill="#1d2127"/>
+<rect x="187.0" y="26" width="46.0" height="4" rx="2" fill="#1d2127"/>
+<rect x="243.0" y="7" width="114.0" height="42" rx="4" fill="#e39b2d"/>
+<rect x="268.5" y="7" width="3" height="42" fill="#0a0c0f"/>
+<rect x="298.5" y="7" width="3" height="42" fill="#0a0c0f"/>
+<rect x="328.5" y="7" width="3" height="42" fill="#0a0c0f"/>
+<rect x="363.0" y="7" width="114.0" height="42" rx="4" fill="#1d2127"/>
+<rect x="419.0" y="19" width="2" height="18" fill="#0a0c0f"/>
+<rect x="483.0" y="7" width="54.0" height="42" rx="4" fill="#8fb4d8"/>
+<rect x="543.0" y="7" width="54.0" height="42" rx="4" fill="#1d2127"/>
+<rect x="603.0" y="7" width="114.0" height="42" rx="4" fill="#e39b2d"/>
+<rect x="613.5" y="7" width="3" height="42" fill="#0a0c0f"/>
+<rect x="628.5" y="7" width="3" height="42" fill="#0a0c0f"/>
+<rect x="643.5" y="7" width="3" height="42" fill="#0a0c0f"/>
+<rect x="658.5" y="7" width="3" height="42" fill="#0a0c0f"/>
+<rect x="673.5" y="7" width="3" height="42" fill="#0a0c0f"/>
+<rect x="688.5" y="7" width="3" height="42" fill="#0a0c0f"/>
+<rect x="703.5" y="7" width="3" height="42" fill="#0a0c0f"/>
+<rect x="727.0" y="26" width="46.0" height="4" rx="2" fill="#1d2127"/>
+<rect x="783.0" y="7" width="54.0" height="42" rx="4" fill="#1d2127"/>
+<rect x="843.0" y="7" width="114.0" height="42" rx="4" fill="#f2b34a"/>
+<text x="900.0" y="34" text-anchor="middle" font-family="IBM Plex Sans Condensed, Arial, sans-serif" font-weight="700" font-size="18" fill="#0a0c0f">1/2</text>
+</svg>
