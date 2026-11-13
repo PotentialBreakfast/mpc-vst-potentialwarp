@@ -111,11 +111,12 @@ jobs:
       - name: Package and check
         run: |
           K=$GITHUB_WORKSPACE/kit
+          BENCH=; [ -f vst/bench.txt ] && BENCH="--bench vst/bench.txt"   # the CPU figure measured on a Gen1 MPC
           python3 $K/tools/release.py --so vst/build/potentialwarp.so \
             --skin "vst/build/skin/PotentialBreaks - VST - PotentialWarp" \
             --entry vst/build/pluginlist-entry.xml --version ${{ steps.t.outputs.version }} \
             --id potentialwarp --repo ${{ github.repository }} --license MIT \
-            --about "Tempo-locked mangler: stutters, half-speed, tape stops, reverses and gates in 16 one-tap patterns." -o $GITHUB_WORKSPACE/dist
+            --about "Tempo-locked mangler: stutters, half-speed, tape stops, reverses and gates in 16 one-tap patterns." $BENCH -o $GITHUB_WORKSPACE/dist
           python3 $K/tools/catalog_check.py $GITHUB_WORKSPACE/dist/*.zip --catalog
           cd $GITHUB_WORKSPACE/dist && sha256sum *.zip | tee SHA256SUMS
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 (2026-11)
+- **CPU figure recorded.** Measured on an MPC One with the Open MPC bench: **PASS**, 3.7% of an audio block at the 99th percentile and 4.9% at worst, so it runs comfortably alongside a full project. It shows on the catalog card and in INSTALL.md.
+- Nothing else changed: same sound, controls and saved projects as 1.1.0.
+
 ## 1.1.0 (2026-11)
 - **Edit the patterns.** A new **EDIT** page: tap a step, then what it does (straight, silent, 1/2 or 1/4 speed, tape stop or start, backwards, spinback, repeat 1/8 to 1/64). Every pad can be changed, the pad's name shows EDITED, and **RESET PAD** puts its own pattern back.
 - **Dice.** **ROLL** makes a new pattern for the pad, on the beat. **MILD**, **MEDIUM** or **WILD** says how far it goes.
