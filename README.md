@@ -26,9 +26,12 @@ It keeps the last few seconds of whatever you feed it and plays them back throug
 | Control | What it does |
 |---|---|
 | **PATTERNS** | 16 one-tap pads (also in the MPC's PRESET menu): Half Time, Tape Stop, Stop Start, Stutter, Roll Up, Beat Repeat, Reverse, Spinback, Gate 16ths, Gate 8ths, Chop, Half End, Slow Mo, Glitch, Wobble, Mangle. Every pad can be edited or rolled anew (below) |
-| **LENGTH** | How long the 16 steps last: **1/2 BAR**, **1 BAR** or **2 BARS** |
+| **LENGTH** | How long the 16 steps last: **1/2 BAR**, **1 BAR**, **2 BARS** or **4 BARS** |
+| **SWING** | 50 % (straight) to 75 %, MPC style: the off 16th steps start later, so gates, chops and repeats swing with your beat |
 | **FADE** | **TIGHT** (short, punchy jumps) or **SOFT** (smoother) |
 | **WARP** | **ON** / **OFF**. Automate it to drop the effect in and out |
+| **PLAY** | **ALWAYS**: the pattern runs with the song, every bar. **ONE SHOT**: tap a pattern (or play a pad) and it plays once, from the next 16th, then the sound goes straight through again. **HOLD**: the pattern plays only while you hold a pad, like a performance effect. Pads A01-A16 play patterns 1-16 (HOLD needs pads or keys: the touchscreen doesn't tell a plugin when your finger lifts) |
+| **STOP FILTER** | A low-pass that closes as a Tape Stop runs down and opens as a Tape Start spins up, like a real deck. On for new copies; projects from before 1.2.0 keep it off so they sound as they did |
 | **MIX / OUTPUT** | Blend with the original sound, set the level |
 
 The strip at the top shows the pattern you picked, step by step and coloured by move, with a light under the step that's playing now.
@@ -38,7 +41,7 @@ The strip at the top shows the pattern you picked, step by step and coloured by 
 | Control | What it does |
 |---|---|
 | **Steps 1-16** | Tap a step... |
-| **WHAT THE STEP DOES** | ...then tap what it does: Straight, Silent, 1/2 or 1/4 Speed, Tape Stop, Tape Start, Backwards, Spinback, or Repeat 1/8, 1/16, 1/32, 1/64 (the repeat sizes are at LENGTH 1 BAR). Steps next to each other with the same move join into one longer move, so four Tape Stop steps make one long stop |
+| **WHAT THE STEP DOES** | ...then tap what it does: Straight, Silent, 1/2 or 1/4 Speed, Tape Stop, Tape Start, Backwards, Spinback, Repeat 1/8, 1/16, 1/32, 1/64, or triplet repeats 1/8T, 1/16T, 1/32T (the repeat sizes are at LENGTH 1 BAR). Steps next to each other with the same move join into one longer move, so four Tape Stop steps make one long stop |
 | **ROLL** | Dice: rolls a brand-new pattern for the pad, on the beat. Tap again for another |
 | **MILD / MEDIUM / WILD** | How far ROLL goes: mostly straight with a few gentle moves, a mix, or almost all moves |
 | **RESET PAD** | Puts the pad's own pattern back |

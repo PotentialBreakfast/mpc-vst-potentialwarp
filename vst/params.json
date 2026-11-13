@@ -38,7 +38,8 @@
       "options": [
         "1/2 BAR",
         "1 BAR",
-        "2 BARS"
+        "2 BARS",
+        "4 BARS"
       ],
       "default": "1 BAR"
     },
@@ -149,7 +150,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -240,7 +244,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -260,7 +267,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -280,7 +290,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -300,7 +313,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -320,7 +336,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -340,7 +359,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -360,7 +382,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -380,7 +405,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -400,7 +428,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -420,7 +451,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -440,7 +474,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -460,7 +497,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -480,7 +520,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -500,7 +543,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -520,7 +566,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -540,7 +589,10 @@
         "REPEAT 1/8",
         "REPEAT 1/16",
         "REPEAT 1/32",
-        "REPEAT 1/64"
+        "REPEAT 1/64",
+        "REPEAT 1/8T",
+        "REPEAT 1/16T",
+        "REPEAT 1/32T"
       ],
       "default": "STRAIGHT",
       "live": true
@@ -634,6 +686,33 @@
       "min": 0,
       "max": 1,
       "live": true
+    },
+    {
+      "key": "swing",
+      "name": "Swing",
+      "default": 50,
+      "min": 50,
+      "max": 75,
+      "unit": "%"
+    },
+    {
+      "key": "play",
+      "name": "Play",
+      "options": [
+        "ALWAYS",
+        "ONE SHOT",
+        "HOLD"
+      ],
+      "default": "ALWAYS"
+    },
+    {
+      "key": "stop_filter",
+      "name": "Stop Filter",
+      "options": [
+        "OFF",
+        "ON"
+      ],
+      "default": "ON"
     }
   ]
 }

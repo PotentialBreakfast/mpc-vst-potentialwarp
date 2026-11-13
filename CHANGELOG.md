@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0 (2026-11)
+- **Triplet repeats**: three new step moves, **Repeat 1/8T, 1/16T and 1/32T**, on the EDIT page, and ROLL uses them too (more on WILD).
+- **SWING** (TIME panel): 50 % (straight) to 75 %, MPC style. The off 16th steps start later, so gates, chops and repeats swing with your beat.
+- **4 BARS**: a fourth LENGTH, for slow builds and long tape stops.
+- **STOP FILTER** (OUTPUT panel): a low-pass that closes as a Tape Stop runs down and opens as a Tape Start spins up, like a real deck. On for new copies; projects saved before 1.2.0 keep it off so they sound as they did.
+- **PLAY** (WARP panel): **ALWAYS** (as before: the pattern runs with the song), **ONE SHOT** (tap a pattern, or play a pad, and it plays once from the next 16th, then the sound goes straight through) or **HOLD** (the pattern plays only while you hold a pad). MIDI pads A01-A16 now pick patterns 1-16 in every mode. HOLD needs pads or keys, because MPC's touchscreen doesn't tell a plugin when your finger lifts.
+- The EDIT page's step choices are now three rows. Three parameters were added at the end of the list (Swing, Play, Stop Filter); saved projects open as before.
+
 ## 1.1.1 (2026-11)
 - **CPU figure recorded.** Measured on an MPC One with the Open MPC bench: **PASS**, 3.7% of an audio block at the 99th percentile and 4.9% at worst, so it runs comfortably alongside a full project. It shows on the catalog card and in INSTALL.md.
 - Nothing else changed: same sound, controls and saved projects as 1.1.0.

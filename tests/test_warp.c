@@ -59,7 +59,7 @@ int main(void) {
     const float input_step = 0.5f * 2 * (float)M_PI * 220 / 44100;   /* the sine's own largest step */
 
     /* 1. every pattern, every length, both fades, with jitter, loop wraps and two tempo changes: no clicks, no NaN */
-    for (int len = 0; len < 3; len++)
+    for (int len = 0; len < 4; len++)
         for (int fade = 0; fade < 2; fade++)
             for (int p = 0; p < 16; p++) {
                 void *s = e->create(NULL);
@@ -268,8 +268,8 @@ int main(void) {
             char before[17]; snprintf(before, sizeof before, "%s", warp_pad(s, 7));
             set(e, s, "dice", "1");
             const char *p = warp_pad(s, 7);
-            CHECK(strlen(p) == 16 && strspn(p, ".-hqturbXxyz") == 16, "dice %d: bad pattern %s", wild, p);
-            CHECK(strpbrk(p, "-hqturbXxyz") != NULL, "dice %d: all straight", wild);
+            CHECK(strlen(p) == 16 && strspn(p, ".-hqturbXxyzABC") == 16, "dice %d: bad pattern %s", wild, p);
+            CHECK(strpbrk(p, "-hqturbXxyzABC") != NULL, "dice %d: all straight", wild);
             CHECK(strcmp(p, before), "dice %d: same pattern twice", wild);
             for (int i = 0; i < 16; i++) straight_steps += p[i] == '.';
         }
@@ -319,6 +319,134 @@ int main(void) {
         set(e, s, "chain", "0");
         e->get_param(s, "chain_now", buf, sizeof buf); CHECK(strstr(buf, "OFF") != NULL, "chain off: %s", buf);
         e->destroy(s); e->destroy(t);
+    }
+
+    /* 11. (1.2.0) SWING moves the off 16ths later: with Gate 16ths at 75 %, step 2's sound starts half a step late */
+    {
+        void *s = e->create(NULL);
+        set(e, s, "pattern", "8"); set(e, s, "swing", "75");
+        host_t h = {0, 120, 0, 220, 1, 0, 2u};
+        static int16_t rec[44100 * 4];
+        int pos = 0; float peak = 0;
+        while (pos + 128 <= 44100 * 4) { block(e, s, &h, 128, &peak, 0.5f, rec + pos); pos += 128; }
+        double sixteenth = 44100 * 0.125;   /* bar 2: steps 16..31; each silent off step now starts half a step late */
+        int quiet_late = 0, loud_late = 0;
+        for (int pair = 8; pair < 16; pair++) {
+            int a = (int)((2 * pair + 1.1) * sixteenth), b = (int)((2 * pair + 1.65) * sixteenth);
+            int mx = 0; for (int i = a; i < a + 600; i++) if (abs(rec[i]) > mx) mx = abs(rec[i]);
+            loud_late += mx > 10000;   /* unswung this would be the silent step: swung, the on step is still sounding */
+            mx = 0; for (int i = b; i < b + 600; i++) if (abs(rec[i]) > mx) mx = abs(rec[i]);
+            quiet_late += mx < 30;     /* and the off step's silence comes after */
+        }
+        CHECK(quiet_late == 8 && loud_late == 8, "swing 75%%: %d of 8 swung off steps silent late, %d of 8 sounding after", quiet_late, loud_late);
+        e->destroy(s);
+    }
+
+    /* 12. (1.2.0) 4 BARS: the playhead takes 16 beats for 16 steps; triplet repeats repeat every 2/3 step */
+    {
+        void *s = e->create(NULL);
+        set(e, s, "pattern", "3"); set(e, s, "length", "3");
+        host_t h = {0, 120, 0, 220, 1, 0, 5u};
+        float peak = 0;
+        for (int b = 0; b < 1550; b++) block(e, s, &h, 128, &peak, 0.3f, NULL);   /* about 4.5 s = 9 beats */
+        e->get_param(s, "step", buf, sizeof buf);
+        int want = (int)(fmod(h.ppq, 16.0) / 1.0) + 1;
+        CHECK(abs(atoi(buf) - want) <= 1, "4 bars: step %s, want about %d", buf, want);
+        e->get_param(s, "length", buf, sizeof buf); CHECK(!strcmp(buf, "3"), "length 4 bars: %s", buf);
+        /* every step a 1/16T repeat: a ramp input repeats with a period of 2/3 of a 16th */
+        set(e, s, "length", "1");
+        for (int k = 0; k < 16; k++) { char v[8]; snprintf(v, sizeof v, "%d", k); set(e, s, "edit_step", v); set(e, s, "move", "13"); }
+        CHECK(!strcmp(warp_pad(s, 3), "BBBBBBBBBBBBBBBB"), "triplet edit: %s", warp_pad(s, 3));
+        e->get_param(s, "st5", buf, sizeof buf); CHECK(!strcmp(buf, "13"), "st5 shows %s", buf);
+        static int16_t rec[44100 * 4];
+        int16_t in[256], out[256];
+        host_t g = {0, 120, 0, 0, 1, 0, 2u};
+        void *t = e->create(NULL);
+        char st[4096]; e->get_param(s, "state", st, sizeof st); e->set_param(t, "state", st);
+        for (int pos = 0; pos + 128 <= 44100 * 4; pos += 128) {
+            for (int i = 0; i < 128; i++) { int v = ((pos + i) % 40000) - 20000; in[2 * i] = in[2 * i + 1] = (int16_t)v; }
+            e->song_pos(t, g.ppq, g.bpm, 1, 128); e->process(t, in, out, 128);
+            for (int i = 0; i < 128; i++) rec[pos + i] = out[2 * i];
+            g.ppq += 128 * 120 / 60.0 / 44100.0;
+        }
+        /* count the slice restarts in bar 2 (the ramp falls back, over the short crossfade): 16 steps x 1.5 = 24, plus
+           the ramp's own wraps */
+        int jumps = 0, falling = 0;
+        for (int i = 88200 + 50; i < 176400 - 50; i++) {
+            int f = rec[i] < rec[i - 1] - 8;
+            if (f && !falling) jumps++;
+            falling = f;
+        }
+        CHECK(jumps >= 22 && jumps <= 29, "1/16T repeats: %d slice restarts in a bar (want about 24)", jumps);
+        e->destroy(s); e->destroy(t);
+    }
+
+    /* 13. (1.2.0) STOP FILTER: during a tape stop the top end goes; without it, it doesn't. Old states have it off. */
+    {
+        double hf[2];
+        for (int on = 0; on < 2; on++) {
+            void *s = e->create(NULL);
+            set(e, s, "pattern", "1"); set(e, s, "stop_filter", on ? "1" : "0");
+            static int16_t rec[44100 * 4];
+            int16_t in[256], out[256]; double ppq = 0; unsigned r = 1;
+            for (int pos = 0; pos + 128 <= 44100 * 4; pos += 128) {   /* white noise in */
+                for (int i = 0; i < 128; i++) { r = r * 1103515245u + 12345u; int v = (int)((r >> 16) % 20000) - 10000; in[2 * i] = in[2 * i + 1] = (int16_t)v; }
+                e->song_pos(s, ppq, 120, 1, 128); e->process(s, in, out, 128);
+                for (int i = 0; i < 128; i++) rec[pos + i] = out[2 * i];
+                ppq += 128 * 2.0 / 44100;
+            }
+            /* bar 2, steps 9-14 of the tape stop: the high end (sample-to-sample differences) */
+            double sixteenth = 44100 * 0.125, en = 0;
+            for (int i = (int)(25 * sixteenth); i < (int)(30 * sixteenth); i++) { double d = rec[i] - rec[i - 1]; en += d * d; }
+            hf[on] = en;
+            e->destroy(s);
+        }
+        CHECK(hf[1] < hf[0] * 0.5, "stop filter: tape stop energy %.3g with, %.3g without", hf[1], hf[0]);
+        void *t = e->create(NULL);
+        e->set_param(t, "state", "pattern=1;length=1;warp=1;fade=0;mix=100;output=0;");
+        e->get_param(t, "stop_filter", buf, sizeof buf); CHECK(!strcmp(buf, "0"), "old state: stop filter %s", buf);
+        e->get_param(t, "swing", buf, sizeof buf); CHECK(atof(buf) == 50, "old state: swing %s", buf);
+        e->destroy(t);
+    }
+
+    /* 14. (1.2.0) ONE SHOT: a pad plays its pattern once, then straight through. HOLD: only while the note is held. */
+    {
+        void *s = e->create(NULL);
+        set(e, s, "play", "1");
+        host_t h = {0, 120, 0, 220, 1, 0, 4u};
+        float peak = 0;
+        for (int b = 0; b < 1100; b++) block(e, s, &h, 128, &peak, 0.5f, NULL);   /* past the 3 s a project needs to open */
+        e->get_param(s, "step", buf, sizeof buf); CHECK(!strcmp(buf, "0"), "one shot: playing before a tap (%s)", buf);
+        set(e, s, "pattern", "8"); set(e, s, "pattern", "8");   /* one tap = two presses */
+        for (int b = 0; b < 30; b++) block(e, s, &h, 128, &peak, 0.5f, NULL);
+        e->get_param(s, "step", buf, sizeof buf); CHECK(atoi(buf) >= 1 && atoi(buf) <= 2, "one shot: step %s after a tap", buf);
+        static int16_t rec[44100 * 3];
+        int pos = 0;
+        while (pos + 128 <= 44100 * 3) { block(e, s, &h, 128, &peak, 0.5f, rec + pos); pos += 128; }
+        int silent_early = 0, silent_late = 0;   /* gate 16ths: silent gaps during the shot (first 1.8 s), none after 2.2 s */
+        for (int i = 0; i < 44100 * 18 / 10; i += 400) { int mx = 0; for (int k = i; k < i + 400; k++) if (abs(rec[k]) > mx) mx = abs(rec[k]); silent_early += mx < 30; }
+        for (int i = 44100 * 22 / 10; i < 44100 * 3 - 400; i += 400) { int mx = 0; for (int k = i; k < i + 400; k++) if (abs(rec[k]) > mx) mx = abs(rec[k]); silent_late += mx < 30; }
+        CHECK(silent_early > 40 && silent_late == 0, "one shot: %d silent bits during, %d after", silent_early, silent_late);
+        /* HOLD with MIDI */
+        set(e, s, "play", "2");
+        uint8_t on[3] = {0x90, 36 + 8, 100}, off[3] = {0x80, 36 + 8, 0};
+        e->midi(s, on, 3);
+        for (int b = 0; b < 200; b++) block(e, s, &h, 128, &peak, 0.5f, NULL);
+        e->get_param(s, "step", buf, sizeof buf); int held = atoi(buf);
+        e->midi(s, off, 3);
+        block(e, s, &h, 128, &peak, 0.5f, NULL);
+        e->get_param(s, "step", buf, sizeof buf);
+        CHECK(held > 0 && !strcmp(buf, "0"), "hold: step %d while held, %s after", held, buf);
+        e->get_param(s, "pattern", buf, sizeof buf); CHECK(!strcmp(buf, "8"), "hold: note 44 picked pattern %s", buf);
+        /* clicks: hold on and off on every few blocks */
+        float worst = 0;
+        for (int b = 0; b < 2000; b++) {
+            if (b % 37 == 0) e->midi(s, on, 3);
+            if (b % 37 == 20) e->midi(s, off, 3);
+            float stp = block(e, s, &h, 128, &peak, 0.5f, NULL); if (b > 2 && stp > worst) worst = stp;
+        }
+        CHECK(worst < input_step * 2.2f + 0.02f, "hold on/off: click %.4f", worst);
+        e->destroy(s);
     }
 
     printf(fails ? "%d FAILED\n" : "ALL PASSED\n", fails);

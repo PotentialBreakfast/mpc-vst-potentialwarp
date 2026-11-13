@@ -10,6 +10,10 @@
  * EDIT page: tap a step (EDIT STEP), then what it does (MOVE). Every pad's pattern can be edited, is saved with the project,
  * and RESET puts the pad's own pattern back. DICE rolls a new pattern for the pad; WILD says how far it goes.
  * CHAIN page: up to 8 slots, each a pad's pattern, played in turn (one LENGTH each) while CHAIN is ON; the pads follow.
+ * 1.2.0: LENGTH 4 BARS; triplet repeats (1/8T, 1/16T, 1/32T); SWING (50-75 %, MPC style: the off 16ths move later);
+ * STOP FILTER (a low-pass that closes as a tape stop runs down and opens as a tape start spins up); PLAY: ALWAYS, ONE SHOT
+ * (a tapped pad or a MIDI note plays its pattern once, from the next 16th) or HOLD (only while a MIDI note is held:
+ * MPC's touchscreen sends no release, so HOLD needs pads or keys; pads A01-A16 = patterns 1-16).
  * 44.1 kHz, interleaved int16 stereo, 128-frame blocks (wrapper/engine.h); the song position comes from song_pos(). */
 #include <math.h>
 #include <stdint.h>
@@ -30,20 +34,23 @@
 
 /* ---- parameters: same order and keys as vst/params.json (step and theme sit between OUTPUT and EDIT STEP) ---- */
 enum { P_RESERVED, P_PATTERN, P_LENGTH, P_WARP, P_FADE, P_MIX, P_OUT, P_EDIT, P_MOVE, P_DICE, P_WILD, P_RESET, P_CHAIN,
-       P_CPOS, P_CPICK, NP };
+       P_CPOS, P_CPICK, P_SWING, P_PLAY, P_SFILT, NP };
 static const char *KEYS[NP] = {"reserved", "pattern", "length", "warp", "fade", "mix", "output", "edit_step", "move", "dice",
-                               "wild", "reset", "chain", "chain_pos", "chain_pick"};
+                               "wild", "reset", "chain", "chain_pos", "chain_pick", "swing", "play", "stop_filter"};
 /* saved in the state: the settings, not the triggers or what the EDIT / CHAIN pages show */
-static const int SAVED[] = {P_PATTERN, P_LENGTH, P_WARP, P_FADE, P_MIX, P_OUT, P_EDIT, P_WILD, P_CHAIN, P_CPOS};
+static const int SAVED[] = {P_PATTERN, P_LENGTH, P_WARP, P_FADE, P_MIX, P_OUT, P_EDIT, P_WILD, P_CHAIN, P_CPOS,
+                            P_SWING, P_PLAY, P_SFILT};
+enum { PLAY_ALWAYS, PLAY_ONESHOT, PLAY_HOLD };
 
 /* the MOVE options, in params.json's order, as pattern characters */
-#define NMOVE 12
-static const char MOVES[NMOVE + 1] = ".-hqturbXxyz";
+#define NMOVE 15
+static const char MOVES[NMOVE + 1] = ".-hqturbXxyzABC";
 
 /* ---- the 16 patterns: one character per step ----
  *   .  straight through          h  half speed           q  quarter speed
  *   t  tape stop (slows to 0)    u  tape start (spins up from 0)
  *   z  repeat 1/4 step   y  repeat 1/2 step   x  repeat 1 step   X  repeat 2 steps   (from the start of the run)
+ *   A  repeat 4/3 step (1/8 triplet)   B  repeat 2/3 step (1/16 triplet)   C  repeat 1/3 step (1/32 triplet)
  *   r  backwards                 b  spin back (fast backwards, slowing down)
  *   -  silence
  * A run of the same character is one move: "tttt" is one tape stop four steps long. */
@@ -69,7 +76,8 @@ static const char *PAT[NPAT] = {
 static const char *PAT_NAMES[NPAT] = {"HALF TIME", "TAPE STOP", "STOP START", "STUTTER", "ROLL UP", "BEAT REPEAT",
                                       "REVERSE", "SPINBACK", "GATE 16THS", "GATE 8THS", "CHOP", "HALF END",
                                       "SLOW MO", "GLITCH", "WOBBLE", "MANGLE"};
-static const double LEN_BEATS[3] = {2.0, 4.0, 8.0};
+#define NLEN 4
+static const double LEN_BEATS[NLEN] = {2.0, 4.0, 8.0, 16.0};
 static const float FADE_SEC[2] = {0.0025f, 0.010f};
 
 typedef struct { uint8_t start, len; char mode; } run_t;
@@ -94,6 +102,10 @@ typedef struct {
     float g_vol, g_on, s_mix, s_out;                        /* smoothed */
     int step, step_shown;        /* step under the playhead (0..15), what the screen last read */
     unsigned rev;
+    /* ONE SHOT / HOLD */
+    double shot_start, shot_end; int shot_on, held_note; long quiet; long since_tap;
+    /* STOP FILTER: a state-variable low-pass per channel, its smoothed cutoff */
+    float sv_ic1[2], sv_ic2[2], fc;
     pt_theme_t theme;   /* which look MPC loads next time: not part of the saved state */
 } warp_t;
 
@@ -133,10 +145,10 @@ static int pick(warp_t *s, const int *w, int n) {   /* an index, weighted */
 /* DICE: a new pattern of runs that sit on the beat. wild 0 = mild (mostly straight, gentle moves), 1 = medium,
  * 2 = wild (little straight, short runs, every move). Never all straight. */
 static void dice(warp_t *s, int p, int wild) {
-    /*                               .   -   h   q   t   u   r   b   X   x   y   z   (MOVES order) */
-    static const int W[3][NMOVE] = {{60, 6, 10, 0, 6, 0, 3, 2, 5, 6, 2, 0},
-                                    {30, 9, 10, 4, 7, 3, 6, 4, 8, 9, 6, 4},
-                                    {10, 10, 8, 6, 7, 6, 9, 7, 9, 10, 9, 9}};
+    /*                               .   -   h   q   t   u   r   b   X   x   y   z   A  B  C   (MOVES order) */
+    static const int W[3][NMOVE] = {{60, 6, 10, 0, 6, 0, 3, 2, 5, 6, 2, 0, 2, 0, 0},
+                                    {30, 9, 10, 4, 7, 3, 6, 4, 8, 9, 6, 4, 4, 3, 2},
+                                    {10, 10, 8, 6, 7, 6, 9, 7, 9, 10, 9, 9, 6, 6, 5}};
     static const int LW[3][3] = {{2, 4, 6}, {4, 5, 3}, {6, 4, 2}};   /* run of 1, 2 or 4 steps */
     char out[NSTEP + 1];
     for (int tries = 0; tries < 20; tries++) {
@@ -151,6 +163,7 @@ static void dice(warp_t *s, int p, int wild) {
             for (int k = 0; k < NMOVE; k++) if (MOVES[k] == last && k) w[k] /= 3;   /* fewer repeats of the same move */
             char m = MOVES[pick(s, w, NMOVE)];
             if (m == 'X' && len < 2) m = 'x';
+            if (m == 'A' && len < 2) m = 'B';   /* a 1/8 triplet needs more than one step */
             for (int k = 0; k < len; k++) out[i + k] = m;
             if (m != '.') moves++;
             last = m; i += len;
@@ -158,7 +171,7 @@ static void dice(warp_t *s, int p, int wild) {
         out[NSTEP] = 0;
         if (moves && strcmp(out, s->pat[p])) break;
     }
-    if (!strpbrk(out, "-hqturbXxyz")) memcpy(out + 12, "xxxx", 4);   /* never all straight */
+    if (!strpbrk(out, "-hqturbXxyzABC")) memcpy(out + 12, "xxxx", 4);   /* never all straight */
     set_pattern(s, p, out);
 }
 
@@ -176,12 +189,44 @@ static void *create(const char *data_dir) {
     s->rnd = 0x9e3779b9u ^ (uint32_t)(uintptr_t)s;
     s->p[P_PATTERN] = 0; s->p[P_LENGTH] = 1; s->p[P_WARP] = 1; s->p[P_FADE] = 0; s->p[P_MIX] = 100; s->p[P_OUT] = 0;
     s->p[P_EDIT] = 0; s->p[P_WILD] = 1; s->p[P_CHAIN] = 0; s->p[P_CPOS] = 0;
+    s->p[P_SWING] = 50; s->p[P_PLAY] = PLAY_ALWAYS; s->p[P_SFILT] = 1;
+    s->held_note = -1; s->quiet = (long)(3 * FS); s->fc = 20000; s->since_tap = 1L << 30;
     s->bpm = 90.0; s->step_shown = -1;
     s->g_vol = 1; s->g_on = 1; s->s_mix = 1; s->s_out = 1;
     return s;
 }
 static void destroy(void *inst) { warp_t *s = inst; if (s) { free(s->buf); free(s); } }
-static void midi(void *inst, const uint8_t *msg, int len) { (void)inst; (void)msg; (void)len; }
+/* ONE SHOT and HOLD start a pad's pattern at the next 16th of the song; its steps count from there */
+static void shot(warp_t *s, int pad) {
+    if (pad != (int)s->p[P_PATTERN]) { s->p[P_PATTERN] = (float)pad; s->pending |= 1u << P_PATTERN; }
+    double plen = LEN_BEATS[(int)s->p[P_LENGTH]];
+    s->shot_start = ceil(s->beat * 4.0 - 1e-6) / 4.0;
+    s->shot_end = s->shot_start + plen;
+    s->shot_on = 1;
+    s->since_tap = 0;
+    s->rev++;
+}
+
+/* MIDI notes: pads A01-A16 (notes 36-51, and every octave on from there) pick patterns 1-16. With PLAY on ONE SHOT a
+ * note plays its pattern once; on HOLD only while it's held; on ALWAYS it just picks the pattern. */
+static void midi(void *inst, const uint8_t *msg, int len) {
+    warp_t *s = inst;
+    if (len < 3) return;
+    int st = msg[0] & 0xF0, note = msg[1], vel = msg[2];
+    int pad = ((note - 36) % 16 + 16) % 16;
+    int play = (int)s->p[P_PLAY];
+    if (st == 0x90 && vel > 0) {
+        if (play == PLAY_ALWAYS) {
+            if (pad != (int)s->p[P_PATTERN]) { s->p[P_PATTERN] = (float)pad; s->pending |= 1u << P_PATTERN; s->rev++; }
+            return;
+        }
+        shot(s, pad);
+        if (play == PLAY_HOLD) s->held_note = note;
+    } else if ((st == 0x80 || (st == 0x90 && vel == 0)) && note == s->held_note) {
+        s->held_note = -1;
+        if (play == PLAY_HOLD) { s->shot_on = 0; s->rev++; }
+    }
+}
 
 static int find(const char *key) {
     for (int i = 0; i < NP; i++) if (!strcmp(key, KEYS[i])) return i;
@@ -190,7 +235,7 @@ static int find(const char *key) {
 static void clamp_all(warp_t *s) {
     s->p[P_RESERVED] = 0;
     s->p[P_PATTERN] = clampf(roundf(s->p[P_PATTERN]), 0, NPAT - 1);
-    s->p[P_LENGTH] = clampf(roundf(s->p[P_LENGTH]), 0, 2);
+    s->p[P_LENGTH] = clampf(roundf(s->p[P_LENGTH]), 0, NLEN - 1);
     s->p[P_WARP] = clampf(roundf(s->p[P_WARP]), 0, 1);
     s->p[P_FADE] = clampf(roundf(s->p[P_FADE]), 0, 1);
     s->p[P_MIX] = clampf(s->p[P_MIX], 0, 100);
@@ -199,6 +244,9 @@ static void clamp_all(warp_t *s) {
     s->p[P_WILD] = clampf(roundf(s->p[P_WILD]), 0, 2);
     s->p[P_CHAIN] = clampf(roundf(s->p[P_CHAIN]), 0, 1);
     s->p[P_CPOS] = clampf(roundf(s->p[P_CPOS]), 0, NCHAIN - 1);
+    s->p[P_SWING] = clampf(s->p[P_SWING], 50, 75);
+    s->p[P_PLAY] = clampf(roundf(s->p[P_PLAY]), 0, 2);
+    s->p[P_SFILT] = clampf(roundf(s->p[P_SFILT]), 0, 1);
 }
 
 static void set_param(void *inst, const char *key, const char *val) {
@@ -208,6 +256,8 @@ static void set_param(void *inst, const char *key, const char *val) {
         char tmp[2048]; snprintf(tmp, sizeof tmp, "%s", val);
         for (int p = 0; p < NPAT; p++) set_pattern(s, p, PAT[p]);   /* a state without them (1.0.x) has the pads' own */
         for (int c = 0; c < NCHAIN; c++) s->chain[c] = CHAIN_DEFAULT[c];
+        s->p[P_SWING] = 50; s->p[P_PLAY] = PLAY_ALWAYS; s->p[P_SFILT] = 0;   /* a state from before 1.2.0 sounds as it did */
+        s->quiet = (long)(3 * FS); s->shot_on = 0; s->held_note = -1;
         char *save = NULL;
         for (char *tok = strtok_r(tmp, ";", &save); tok; tok = strtok_r(NULL, ";", &save)) {
             char *eq = strchr(tok, '=');
@@ -256,6 +306,14 @@ static void set_param(void *inst, const char *key, const char *val) {
         s->rev++;
         return;
     }
+    case P_PATTERN:                /* a tapped pad: in ONE SHOT it plays once (not while a project opens) */
+        if ((int)s->p[P_PLAY] == PLAY_ONESHOT && s->quiet <= 0) {
+            int pad = (int)clampf(roundf(v), 0, NPAT - 1);
+            if (!(s->shot_on && pad == (int)s->p[P_PATTERN] && s->since_tap < (long)(0.25 * FS))) shot(s, pad);   /* a tap arrives twice */
+            return;
+        }
+        break;
+    case P_PLAY: s->shot_on = 0; s->held_note = -1; break;
     default: break;
     }
     s->p[i] = v;
@@ -303,7 +361,7 @@ static int get_param(void *inst, const char *key, char *buf, int buf_len) {
     if (!strcmp(key, "display_rev")) return snprintf(buf, buf_len, "%u", s->rev);
     if (!strcmp(key, "step")) {     /* the playhead picture: 0 = none, 1..16 = that step */
         s->step_shown = s->step;
-        return snprintf(buf, buf_len, "%d", s->p[P_WARP] > 0.5f ? s->step + 1 : 0);
+        return snprintf(buf, buf_len, "%d", s->p[P_WARP] > 0.5f && s->step >= 0 ? s->step + 1 : 0);
     }
     const int cur = (int)s->p[P_PATTERN];
     if (key[0] == 's' && key[1] == 't' && key[2] >= '1' && key[2] <= '9') {   /* st1..st16: the pad's steps, for the strips */
@@ -336,7 +394,7 @@ static int get_param(void *inst, const char *key, char *buf, int buf_len) {
     }
     int i = find(key);
     if (i < 0) return 0;
-    if (i != P_MIX && i != P_OUT)
+    if (i != P_MIX && i != P_OUT && i != P_SWING)
         return snprintf(buf, buf_len, "%d", (int)lroundf(s->p[i]));
     return snprintf(buf, buf_len, "%g", (double)s->p[i]);
 }
@@ -391,8 +449,9 @@ static double move_delay(char m, double x, double len, double step, int *slice, 
     case 'u': return x - x * x / (2.0 * len);                 /* speed 0 -> 1: spins up from the start of the run */
     case 'r': return 2.0 * x;                                 /* backwards from the start of the run */
     case 'b': return x + 2.0 * (x - x * x / (2.0 * len));     /* backwards at 2x, slowing to a stop */
-    case 'z': case 'y': case 'x': case 'X': {
-        double r = step * (m == 'z' ? 0.25 : m == 'y' ? 0.5 : m == 'x' ? 1.0 : 2.0);
+    case 'z': case 'y': case 'x': case 'X': case 'A': case 'B': case 'C': {
+        double r = step * (m == 'z' ? 0.25 : m == 'y' ? 0.5 : m == 'x' ? 1.0 : m == 'X' ? 2.0 : m == 'A' ? 4.0 / 3.0
+                           : m == 'B' ? 2.0 / 3.0 : 1.0 / 3.0);
         double k = floor(x / r);
         *slice = (int)k;
         return k * r;                                         /* back to the start of the run, every slice */
@@ -400,6 +459,12 @@ static double move_delay(char m, double x, double len, double step, int *slice, 
     case '-': *vol = 0; return 0;
     default: return 0;
     }
+}
+
+/* when step k (0..16) starts, in beats into the pattern: SWING moves the odd steps sw steps later */
+static inline double step_time(int k, double step, double sw, double plen) {
+    if (k >= NSTEP) return plen;
+    return k * step + ((k & 1) ? sw * step : 0.0);
 }
 
 /* how fast that delay grows (beats of delay per beat): the read head moves at 1 - this */
@@ -428,6 +493,11 @@ static void process(void *inst, const int16_t *in_lr, int16_t *out_lr, int frame
     const int xf = (int)(FADE_SEC[fade] * FS);
     const float k_s = 1.0f - expf(-1.0f / (0.02f * (float)FS)), k_v = 1.0f - expf(-1.0f / (0.0015f * (float)FS));
     const float t_mix = s->p[P_MIX] / 100.0f, t_out = powf(10.0f, s->p[P_OUT] / 20.0f), t_on = s->p[P_WARP] > 0.5f ? 1.0f : 0.0f;
+    const double sw = (s->p[P_SWING] - 50.0) / 50.0;   /* 50 % straight .. 75 %: the off 16th half a step late */
+    const int play = (int)s->p[P_PLAY], sfilt = s->p[P_SFILT] > 0.5f;
+    const float k_f = 1.0f - expf(-1.0f / (0.004f * (float)FS));
+    if (s->quiet > 0) s->quiet -= frames;
+    s->since_tap += frames;
 
     for (int n = 0; n < frames; n++) {
         float dl = in_lr[2 * n] * (1.0f / 32768.0f), dr = in_lr[2 * n + 1] * (1.0f / 32768.0f);
@@ -436,25 +506,38 @@ static void process(void *inst, const int16_t *in_lr, int16_t *out_lr, int frame
         float xl, xr;
         read_at(s, now, &xl, &xr); dl = xl; dr = xr;
 
-        /* where in the pattern (a new pass may move the chain on) */
-        if (s->p[P_CHAIN] > 0.5f || s->chain_slot >= 0) { follow_chain(s, plen); pat = (int)s->p[P_PATTERN]; }
-        double ph = fmod(s->beat, plen); if (ph < 0) ph += plen;
-        int st = (int)(ph / step); if (st > NSTEP - 1) st = NSTEP - 1;
-        s->step = st;
+        /* where in the pattern: ALWAYS follows the song (a new pass may move the chain on); ONE SHOT and HOLD count
+           from the tap, and play nothing (straight through) outside it */
+        int active = 1;
+        double ph;
+        if (play == PLAY_ALWAYS) {
+            if (s->p[P_CHAIN] > 0.5f || s->chain_slot >= 0) { follow_chain(s, plen); pat = (int)s->p[P_PATTERN]; }
+            ph = fmod(s->beat, plen); if (ph < 0) ph += plen;
+        } else {
+            pat = (int)s->p[P_PATTERN];
+            if (s->shot_on && play == PLAY_ONESHOT && s->beat >= s->shot_end) { s->shot_on = 0; s->rev++; }
+            active = s->shot_on && s->beat >= s->shot_start;
+            ph = active ? fmod(s->beat - s->shot_start, plen) : 0;
+        }
+        /* SWING: the odd steps start sw steps late; a run lasts from its first step's start to the next run's */
+        int st = 0;
+        while (st < NSTEP - 1 && ph >= step_time(st + 1, step, sw, plen)) st++;
+        s->step = active ? st : -1;
         const run_t *ru = &s->runs[pat][s->run_of[pat][st]];
-        double x = ph - ru->start * step, len = ru->len * step;
+        double t0 = step_time(ru->start, step, sw, plen), t1 = step_time(ru->start + ru->len, step, sw, plen);
+        double x = ph - t0, len = t1 - t0;
         int slice; float vol;
         double d_beats = move_delay(ru->mode, x, len, step, &slice, &vol);
         double d = d_beats * frames_per_beat;
         if (d > MAX_DELAY) d = MAX_DELAY;
         if (d < 0) d = 0;
-        if (t_on < 0.5f) { d = 0; vol = 1; slice = 0; }
+        if (t_on < 0.5f || !active) { d = 0; vol = 1; slice = 0; }
         double target = now - d;
 
         /* Any jump of the read head (a new repeat slice, a move that starts somewhere else, a pattern switch, a loop
          * wrap or locate, a tempo change that rescales the delay) hands the old head to a short crossfade. A jump that
          * comes while a crossfade is still running waits for it to finish (at most FADE), so a fade is never cut. */
-        double speed = t_on < 0.5f ? 1.0 : 1.0 - move_slope(ru->mode, x, len), src = target;
+        double speed = (t_on < 0.5f || !active) ? 1.0 : 1.0 - move_slope(ru->mode, x, len), src = target;
         if (s->have_prev) {
             double cont = s->src_prev + s->speed_prev;            /* where the old head reads next */
             if (fabs(cont - target) > 0.75 || s->force_jump) {
@@ -479,6 +562,27 @@ static void process(void *inst, const int16_t *in_lr, int16_t *out_lr, int frame
             s->tail_left--;
         }
 
+        /* STOP FILTER: closes as the tape slows (to 100 Hz at a standstill), opens as it spins up */
+        if (sfilt) {
+            float want = 20000.0f;
+            if (t_on > 0.5f && active && (ru->mode == 't' || ru->mode == 'u')) {
+                double sp = ru->mode == 't' ? 1.0 - x / len : x / len;
+                if (sp < 0) sp = 0;
+                want = 100.0f * powf(200.0f, powf((float)sp, 1.3f));   /* closes ahead of the pitch: 10 kHz at 90 %, 860 Hz at half speed */
+            }
+            s->fc += (want - s->fc) * k_f;
+            float bl = clampf((18000.0f - s->fc) / 4000.0f, 0.0f, 1.0f);   /* fully open: the filter is out of the way */
+            float g = tanf((float)M_PI * clampf(s->fc, 20.0f, 20000.0f) / (float)FS), k = 1.2f;   /* a slight resonance */
+            float a1 = 1.0f / (1.0f + g * (g + k)), a2 = g * a1, a3 = g * a2;
+            float io[2] = {wl, wr};
+            for (int c = 0; c < 2; c++) {
+                float v3 = io[c] - s->sv_ic2[c];
+                float v1 = a1 * s->sv_ic1[c] + a2 * v3, v2 = s->sv_ic2[c] + a2 * s->sv_ic1[c] + a3 * v3;
+                s->sv_ic1[c] = 2 * v1 - s->sv_ic1[c]; s->sv_ic2[c] = 2 * v2 - s->sv_ic2[c];
+                io[c] = io[c] + (v2 - io[c]) * bl;
+            }
+            wl = io[0]; wr = io[1];
+        }
         s->g_vol += (vol - s->g_vol) * k_v;
         s->g_on += (t_on - s->g_on) * k_s;
         s->s_mix += (t_mix - s->s_mix) * k_s;

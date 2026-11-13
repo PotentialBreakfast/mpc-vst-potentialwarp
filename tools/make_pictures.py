@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """make_pictures.py: draws the pictures of PotentialWarp's pattern strips:
-  vst/pat/m00..m11.svg  one step cell per MOVE (params.json's order: straight, silent, 1/2, 1/4, tape stop, tape start,
-                        backwards, spinback, repeat 1/8, 1/16, 1/32, 1/64). The strip is 16 of them side by side, one per
+  vst/pat/m00..m14.svg  one step cell per MOVE (params.json's order: straight, silent, 1/2, 1/4, tape stop, tape start,
+                        backwards, spinback, repeat 1/8, 1/16, 1/32, 1/64,
+                        1/8T, 1/16T, 1/32T). The strip is 16 of them side by side, one per
                         step parameter st1..st16, so an edited or rolled pattern shows as it is.
   vst/pat/s00..s16.svg  the playhead under step 1..16 (s00 = none)
   vst/pat/key.svg       the colour key under the strip
@@ -38,6 +39,9 @@ MOVES = [
     (REP, "16", "rep1"),
     (REP, "32", "rep2"),
     (REP, "64", "rep4"),
+    (REP, "8T", "rep3"),       # triplet repeats (1.2.0): three slices drawn
+    (REP, "16T", "rep3"),
+    (REP, "32T", "rep3"),
 ]
 
 
