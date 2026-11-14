@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0 (2026-11)
+- **MANUAL page.** The plugin's manual is now on the MPC's screen: tap **MANUAL**, then the page buttons along the top (what it does, the controls, how it works with the other PotentialSuite plugins, and good-to-know notes). The full PotentialSuite manual is on the [PotentialSuite page](https://github.com/PotentialBreakfast/potential-plugins).
+- One parameter was added at the end of the list (Manual Page); saved projects open as before. Sound and controls are unchanged.
+
 ## 1.2.0 (2026-11)
 - **Triplet repeats**: three new step moves, **Repeat 1/8T, 1/16T and 1/32T**, on the EDIT page, and ROLL uses them too (more on WILD).
 - **SWING** (TIME panel): 50 % (straight) to 75 %, MPC style. The off 16th steps start later, so gates, chops and repeats swing with your beat.

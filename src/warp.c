@@ -22,6 +22,7 @@
 #include <string.h>
 #include "engine.h"
 #include "../shared/looks/potential_theme.h"   /* the LOOK switch (parameter "theme") */
+#include "../shared/potential_manual.h"        /* the MANUAL tab's page */
 
 #define FS 44100.0
 #define BUF_BITS 19                      /* 524288 frames (11.9 s) of history per channel */
@@ -107,6 +108,7 @@ typedef struct {
     /* STOP FILTER: a state-variable low-pass per channel, its smoothed cutoff */
     float sv_ic1[2], sv_ic2[2], fc;
     pt_theme_t theme;   /* which look MPC loads next time: not part of the saved state */
+    pm_manual_t manual; /* the MANUAL tab's page: not part of the sound or the saved state */
 } warp_t;
 
 static float clampf(float x, float lo, float hi) { return x < lo ? lo : x > hi ? hi : x; }
@@ -252,6 +254,7 @@ static void clamp_all(warp_t *s) {
 static void set_param(void *inst, const char *key, const char *val) {
     warp_t *s = inst;
     if (pt_theme_set(&s->theme, key, val)) return;
+    if (pm_set(&s->manual, key, val)) return;
     if (!strcmp(key, "state")) {   /* "key=value;key=value;...", plus pats=<16 patterns, '/' between> and chainlist=a,b,.. */
         char tmp[2048]; snprintf(tmp, sizeof tmp, "%s", val);
         for (int p = 0; p < NPAT; p++) set_pattern(s, p, PAT[p]);   /* a state without them (1.0.x) has the pads' own */
@@ -347,6 +350,7 @@ int mpc_engine_changed(void *inst, char *key, int len) {
 static int get_param(void *inst, const char *key, char *buf, int buf_len) {
     warp_t *s = inst;
     { int pt_n = pt_theme_get(&s->theme, key, buf, buf_len); if (pt_n) return pt_n; }
+    { int pm_n = pm_get(&s->manual, key, buf, buf_len); if (pm_n) return pm_n; }
     if (!strcmp(key, "state")) {
         int n = 0;
         for (size_t k = 0; k < sizeof SAVED / sizeof SAVED[0] && n < buf_len; k++)

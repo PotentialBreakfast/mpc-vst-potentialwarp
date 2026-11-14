@@ -4,7 +4,7 @@
 
 ![PotentialWarp's page on the MPC](docs/images/potentialwarp.png)
 
-*Insert effect · MPC OS 3.x · Gen1 and Gen2 · v1.2.0*
+*Insert effect · MPC OS 3.x · Gen1 and Gen2 · v1.3.0*
 
 Free and open source (MIT), made by **PotentialBreaks**. It runs inside the MPC like its own effects, with its own touchscreen page, Q-Link control and project recall, and no computer needed while you play.
 
@@ -51,6 +51,8 @@ Edits and rolls change the pad you're on (its name shows "EDITED"), and every pa
 ### CHAIN page: patterns that change as you go
 
 Tap a slot (1-8), then the pattern for it, and turn **CHAIN** on. The slots play in turn, one pattern LENGTH each, and start again after the last one (or at the first **END**), so a chain like Half Time, Half Time, Stutter, Tape Stop changes over a phrase by itself. The pads follow the chain as it plays. Turn CHAIN off to stay on one pad.
+
+**MANUAL page:** the manual is on the MPC's screen too. Tap **MANUAL**, then the page buttons along the top. The full [PotentialSuite manual](https://github.com/PotentialBreakfast/potential-plugins/blob/main/MANUAL.md) covers every plugin, the FX chains and a developer reference.
 
 ## How to use it
 

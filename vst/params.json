@@ -713,6 +713,7 @@
         "ON"
       ],
       "default": "ON"
-    }
+    },
+    {"key": "manual_page", "name": "Manual Page", "options": ["START", "CONTROLS", "PATTERNS", "EDIT", "SUITE", "HELP"], "default": 0}
   ]
 }
