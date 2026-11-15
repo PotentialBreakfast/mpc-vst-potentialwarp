@@ -4,7 +4,7 @@
 
 ![PotentialWarp's page on the MPC](docs/images/potentialwarp.png)
 
-*Insert effect · MPC OS 3.x · Gen1 and Gen2 · v1.3.0*
+*Insert effect · MPC OS 3.x · Gen1 and Gen2 · v1.4.0*
 
 Free and open source (MIT), made by **PotentialBreaks**. It runs inside the MPC like its own effects, with its own touchscreen page, Q-Link control and project recall, and no computer needed while you play.
 
@@ -60,9 +60,9 @@ Add it as an **insert effect** on a track, program, pad or bus. It won't be in t
 
 For a live feel, map **WARP** or **PATTERN** to a Q-Link and record the moves as automation. Or press **ROLL** until something good comes up, then fix the steps you don't like on the EDIT page.
 
-## Three looks
+## Four looks
 
-PotentialWarp comes in three looks: **Print Plate** (the default), **Night Rack** and **Colour Block**. Open the **SETTINGS** page and tap one of the big LOOK keys. The new look shows the next time the plugin loads: take it off the track and add it again, or load your project again. Your choice is kept on your MPC for every project. The sound and the controls are the same in all three.
+PotentialWarp comes in four looks: **Print Plate** (the default), **Night Rack**, **Colour Block** and **Vintage** (a late-80s drum machine: warm grey panel, cream keys, an amber display). Open the **SETTINGS** page and tap one of the big LOOK keys. The new look shows the next time the plugin loads: take it off the track and add it again, or load your project again. Your choice is kept on your MPC for every project. The sound and the controls are the same in all four.
 
 ## Limitations
 

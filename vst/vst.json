@@ -2,7 +2,7 @@
  "name": "PotentialWarp",
  "vendor": "PotentialBreaks",
  "uid": "PbWp",
- "version": 1300,
+ "version": 1400,
  "so": "potentialwarp.so",
  "params": "params.json",
  "layout": "layout.conf",
