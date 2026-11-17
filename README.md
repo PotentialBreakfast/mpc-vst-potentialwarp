@@ -105,3 +105,10 @@ You don't need to be technical. Short messages are great. See [CONTRIBUTING.md](
 ## Licence
 
 MIT. See [LICENSE](LICENSE) and [THIRD_PARTY.md](THIRD_PARTY.md). Gross Beat is a trademark of Image-Line; PotentialWarp is not affiliated with it.
+
+---
+
+## Tested on
+
+MPC One (Gen1) on standard Akai firmware 3.10.1 and on the latest HAKAI firmware (USB-boot method). Gen2 64-bit builds pass Akai's checks but have had limited real-device testing so far.
+
