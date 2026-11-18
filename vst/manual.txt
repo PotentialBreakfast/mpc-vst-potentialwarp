@@ -56,6 +56,6 @@ Each of the 16 steps does one move:
 - It can only use what it has already heard: backwards plays the moment just before, in reverse.
 - HOLD needs pads or keys. The touchscreen does not tell a plugin when your finger lifts.
 - Q-Links: PATTERN, LENGTH, MIX, OUTPUT, WARP, FADE, SWING and PLAY.
-- Looks: Print Plate, Night Rack, Colour Block or Vintage, on the SETTINGS page.
+- Looks: Print Plate, Night Rack, Colour Block, Vintage or Hi-Fi, on the SETTINGS page.
 
 Ideas, bugs and criticism are all welcome: github.com/PotentialBreakfast/mpc-vst-potentialwarp
